@@ -1,0 +1,268 @@
+{
+  "id": "omni.module.nacos",
+  "version": "0.2.0",
+  "displayName": "Nacos",
+  "kind": "module",
+  "permissions": [
+    "ui:sidebar",
+    "net:connect",
+    "vault:read",
+    "connections:write",
+    "ssh:exec",
+    "ai:tools"
+  ],
+  "entry": {
+    "logic": "logic.js"
+  },
+  "methods": [
+    { "name": "testConnection", "permissions": ["net:connect", "vault:read"] },
+    { "name": "getServerInfo", "permissions": ["net:connect", "vault:read"] },
+    { "name": "listNamespaces", "permissions": ["net:connect", "vault:read"] },
+    {
+      "name": "createNamespace",
+      "permissions": ["net:connect", "vault:read"],
+      "dangerAction": "module.namespace.write"
+    },
+    {
+      "name": "updateNamespace",
+      "permissions": ["net:connect", "vault:read"],
+      "dangerAction": "module.namespace.write"
+    },
+    {
+      "name": "deleteNamespace",
+      "permissions": ["net:connect", "vault:read"],
+      "dangerAction": "module.namespace.write"
+    },
+    { "name": "listConfigs", "permissions": ["net:connect", "vault:read"] },
+    { "name": "getConfig", "permissions": ["net:connect", "vault:read"] },
+    {
+      "name": "publishConfig",
+      "permissions": ["net:connect", "vault:read"],
+      "dangerAction": "module.config.publish"
+    },
+    {
+      "name": "deleteConfig",
+      "permissions": ["net:connect", "vault:read"],
+      "dangerAction": "module.config.delete"
+    },
+    { "name": "listConfigHistory", "permissions": ["net:connect", "vault:read"] },
+    { "name": "getConfigHistory", "permissions": ["net:connect", "vault:read"] },
+    {
+      "name": "rollbackConfig",
+      "permissions": ["net:connect", "vault:read"],
+      "dangerAction": "module.config.rollback"
+    },
+    { "name": "listServices", "permissions": ["net:connect", "vault:read"] },
+    { "name": "getService", "permissions": ["net:connect", "vault:read"] },
+    { "name": "listInstances", "permissions": ["net:connect", "vault:read"] },
+    {
+      "name": "updateInstance",
+      "permissions": ["net:connect", "vault:read"],
+      "dangerAction": "module.discovery.update"
+    },
+    {
+      "name": "onlineInstance",
+      "permissions": ["net:connect", "vault:read"],
+      "dangerAction": "module.discovery.update"
+    },
+    {
+      "name": "offlineInstance",
+      "permissions": ["net:connect", "vault:read"],
+      "dangerAction": "module.discovery.update"
+    },
+    { "name": "listNodes", "permissions": ["net:connect", "vault:read"] },
+    { "name": "listItems", "permissions": ["net:connect", "vault:read"] },
+    { "name": "probeHealth", "permissions": ["net:connect"] },
+    { "name": "omni_nacos_list_namespaces", "permissions": ["net:connect", "vault:read", "ai:tools"] },
+    { "name": "omni_nacos_get_config", "permissions": ["net:connect", "vault:read", "ai:tools"] },
+    { "name": "omni_nacos_search_configs", "permissions": ["net:connect", "vault:read", "ai:tools"] },
+    { "name": "omni_nacos_list_services", "permissions": ["net:connect", "vault:read", "ai:tools"] }
+  ],
+  "contributes": {
+    "ui": {
+      "sidebar": true,
+      "moduleKey": "nacos",
+      "connectionForm": {
+        "fields": [
+          { "key": "host", "type": "text" },
+          { "key": "port", "type": "number" },
+          { "key": "contextPath", "type": "text" },
+          { "key": "useHttps", "type": "checkbox" },
+          { "key": "username", "type": "text", "optional": true },
+          { "key": "password", "type": "password", "optional": true },
+          { "key": "namespaceId", "type": "text", "optional": true },
+          { "key": "dialect", "type": "text", "optional": true }
+        ]
+      }
+    },
+    "module": {
+      "capabilities": [
+        {
+          "id": "namespace",
+          "label": "命名空间",
+          "listMethod": "listNamespaces",
+          "itemKey": "namespaceId",
+          "columns": [
+            { "key": "name", "label": "名称" },
+            { "key": "namespaceId", "label": "ID" },
+            { "key": "configCount", "label": "配置数" }
+          ],
+          "formFields": [
+            { "key": "name", "label": "名称" },
+            { "key": "namespaceId", "label": "ID" },
+            { "key": "description", "label": "描述" }
+          ],
+          "actions": [
+            { "id": "create", "method": "createNamespace", "target": "toolbar", "kind": "plugin", "label": "新建" },
+            { "id": "update", "method": "updateNamespace", "target": "row", "kind": "plugin", "label": "编辑" },
+            { "id": "delete", "method": "deleteNamespace", "target": "row", "kind": "plugin", "label": "删除" }
+          ]
+        },
+        {
+          "id": "config",
+          "label": "配置",
+          "listMethod": "listConfigs",
+          "getMethod": "getConfig",
+          "historyMethod": "listConfigHistory",
+          "historyGetMethod": "getConfigHistory",
+          "itemKey": "group,dataId",
+          "detail": "editor",
+          "columns": [
+            { "key": "dataId", "label": "Data ID" },
+            { "key": "group", "label": "Group" },
+            { "key": "type", "label": "类型" },
+            { "key": "appName", "label": "应用" }
+          ],
+          "formFields": [
+            { "key": "dataId", "label": "Data ID" },
+            { "key": "group", "label": "Group" },
+            { "key": "type", "label": "类型" }
+          ],
+          "actions": [
+            { "id": "create", "method": "publishConfig", "target": "toolbar", "kind": "plugin", "label": "新建" },
+            { "id": "publish", "method": "publishConfig", "target": "editor", "kind": "plugin", "label": "发布" },
+            { "id": "delete", "method": "deleteConfig", "target": "editor", "kind": "plugin", "label": "删除" },
+            { "id": "rollback", "method": "rollbackConfig", "target": "history", "kind": "plugin", "label": "回滚" }
+          ]
+        },
+        {
+          "id": "discovery",
+          "label": "服务发现",
+          "listMethod": "listServices",
+          "childListMethod": "listInstances",
+          "itemKey": "serviceName",
+          "detail": "children",
+          "columns": [
+            { "key": "serviceName", "label": "服务" },
+            { "key": "enabled", "label": "状态" }
+          ],
+          "childColumns": [
+            { "key": "ip", "label": "IP" },
+            { "key": "port", "label": "端口" },
+            { "key": "healthy", "label": "健康" },
+            { "key": "weight", "label": "权重" },
+            { "key": "enabled", "label": "状态" }
+          ],
+          "childItemKey": "ip,port",
+          "actions": [
+            {
+              "id": "online",
+              "method": "onlineInstance",
+              "target": "child",
+              "kind": "plugin",
+              "label": "上线"
+            },
+            {
+              "id": "offline",
+              "method": "offlineInstance",
+              "target": "child",
+              "kind": "plugin",
+              "label": "下线"
+            }
+          ]
+        },
+        {
+          "id": "cluster",
+          "label": "集群",
+          "listMethod": "listNodes",
+          "itemKey": "address",
+          "columns": [{ "key": "address", "label": "地址" }, { "key": "state", "label": "状态" }],
+          "actions": []
+        }
+      ],
+      "probe": {
+        "ports": [8848],
+        "healthPath": "/v1/console/server/state",
+        "contextPath": "/nacos"
+      }
+    },
+    "discovery": [{ "probeId": "module-http" }],
+    "launcher": { "prefix": "nacos" },
+    "ai": {
+      "tools": [
+        {
+          "name": "omni_nacos_list_namespaces",
+          "description": "List Nacos namespaces for a saved service connection.",
+          "execKind": "native",
+          "moduleKey": "nacos",
+          "crossModule": false,
+          "externalExposed": false,
+          "inputSchema": {
+            "type": "object",
+            "properties": {
+              "connectionId": { "type": "string" }
+            }
+          }
+        },
+        {
+          "name": "omni_nacos_get_config",
+          "description": "Read a Nacos config by dataId and group.",
+          "execKind": "native",
+          "moduleKey": "nacos",
+          "crossModule": false,
+          "externalExposed": false,
+          "inputSchema": {
+            "type": "object",
+            "properties": {
+              "connectionId": { "type": "string" },
+              "dataId": { "type": "string" },
+              "group": { "type": "string" },
+              "namespaceId": { "type": "string" }
+            }
+          }
+        },
+        {
+          "name": "omni_nacos_search_configs",
+          "description": "Search Nacos configs by dataId or group fragment.",
+          "execKind": "native",
+          "moduleKey": "nacos",
+          "crossModule": false,
+          "externalExposed": false,
+          "inputSchema": {
+            "type": "object",
+            "properties": {
+              "connectionId": { "type": "string" },
+              "keyword": { "type": "string" },
+              "namespaceId": { "type": "string" }
+            }
+          }
+        },
+        {
+          "name": "omni_nacos_list_services",
+          "description": "List Nacos naming services.",
+          "execKind": "native",
+          "moduleKey": "nacos",
+          "crossModule": false,
+          "externalExposed": false,
+          "inputSchema": {
+            "type": "object",
+            "properties": {
+              "connectionId": { "type": "string" },
+              "namespaceId": { "type": "string" }
+            }
+          }
+        }
+      ]
+    }
+  }
+}
